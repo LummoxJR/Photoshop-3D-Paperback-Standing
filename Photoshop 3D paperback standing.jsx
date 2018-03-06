@@ -5,7 +5,7 @@
 
 	Created by Lee Gaiteri, March 2018
 
-	Version 1.0
+	Version 1.0.1
 
 	Released to the public domain.
 	=========================================================================
