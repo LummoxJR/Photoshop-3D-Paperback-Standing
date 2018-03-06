@@ -52,6 +52,9 @@ var book = {
 	outputHeight: 2500,
 	outputBorder: 100,	// edge of image where we don't draw anything (some of shadow may bleed into this a tiny bit because of Gaussian blur)
 
+	outputDpi: 0,				// 0 to autofit to the output size, or otherwise used to give the image a consistent scale
+	outputOrigin: undefined,	// set to Point3(x,y,0) to anchor the projected origin to pixel position x,y
+
 	// Info about the book source image
 	dpi: 300,
 	includesSpine: true,
@@ -400,11 +403,17 @@ function projectBook() {
 		if(xy[i].y < miny) miny = xy[i].y;
 		else if(xy[i].y > maxy) maxy = xy[i].y;
 	}
-	scale = Math.min((book.outputWidth-book.outputBorder)/(maxx-minx), (book.outputHeight-book.outputBorder)/(maxy-miny));
+
+	scale = book.outputDpi || Math.min((book.outputWidth-book.outputBorder)/(maxx-minx), (book.outputHeight-book.outputBorder)/(maxy-miny));
 
 	for(i=0; i<xyz.length; ++i) {
-		xy[i].x = (xy[i].x - minx - (maxx-minx)/2) * scale + book.outputWidth / 2;
-		xy[i].y = (xy[i].y - miny - (maxy-miny)/2) * scale + book.outputHeight / 2;
+		if(book.outputOrigin) {
+			xy[i] = xy[i].multiply(scale).add(book.outputOrigin);
+		}
+		else {
+			xy[i].x = (xy[i].x - minx - (maxx-minx)/2) * scale + book.outputWidth / 2;
+			xy[i].y = (xy[i].y - miny - (maxy-miny)/2) * scale + book.outputHeight / 2;
+		}
 
 		// use exact coordinates to avoid seams
 		xy[i].x = Math.floor(xy[i].x+0.5);
